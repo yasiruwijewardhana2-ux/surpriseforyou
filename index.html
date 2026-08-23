@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lily 🎉 Happy Birthday</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&family=Shippori+Mincho:wght@500;600;800&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --ink:        #170B2C;
+    --ink-2:      #241142;
+    --ink-deep:   #0F071F;
+    --cream:      #FFF7EC;
+    --cream-dim:  rgba(255,247,236,0.72);
+    --cream-faint:rgba(255,247,236,0.44);
+    --punch:      #FF3E68;
+    --zest:       #FFB627;
+    --electric:   #8C54FF;
+    --mint:       #2EE6A6;
+    --sakura:     #F4A9C6;
+
+    --grad-warm:  linear-gradient(120deg, var(--punch), var(--zest));
+    --grad-cool:  linear-gradient(120deg, var(--electric), var(--punch));
+    --grad-full:  linear-gradient(100deg, var(--punch), var(--zest) 45%, var(--electric) 100%);
+
+    --font-display: 'Fredoka', sans-serif;
+    --font-body:    'Plus Jakarta Sans', sans-serif;
+    --font-mono:    'Space Grotesk', sans-serif;
+    --font-jp:      'Shippori Mincho', serif;
+
+    --ease:   cubic-bezier(.22,.61,.36,1);
+    --bounce: cubic-bezier(.34,1.56,.64,1);
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  html, body{
+    height:100%;
+    overflow:hidden;
+    background:var(--ink);
+    color:var(--cream);
+    font-family: var(--font-body);
+    -webkit-font-smoothing:antialiased;
+  }
+
+  body{
+    position:relative;
+    width:100%;
+    height:100dvh;
+    background:linear-gradient(180deg, var(--ink-2) 0%, var(--ink) 55%, var(--ink-deep) 100%);
+  }
+
+  /* ---------- background blobs (signature: shifting party aurora) ---------- */
+  .blob-field{ position:fixed; inset:-10%; z-index:1; pointer-events:none; filter:blur(70px); transition:filter 1s var(--ease); }
+  .blob{ position:absolute; border-radius:50%; opacity:.4; mix-blend-mode:screen; animation:blob-drift 20s ease-in-out infinite; }
+  .blob-a{ width:46vw; height:46vw; left:-10%; top:-8%; background:var(--punch); animation-duration:19s; }
+  .blob-b{ width:40vw; height:40vw; right:-12%; top:14%; background:var(--electric); animation-duration:23s; animation-delay:-7s; }
+  .blob-c{ width:42vw; height:42vw; left:18%; bottom:-16%; background:var(--zest); animation-duration:21s; animation-delay:-12s; }
+  @keyframes blob-drift{
+    0%,100%{ transform:translate(0,0) scale(1); }
+    33%{ transform:translate(5%,-6%) scale(1.1); }
+    66%{ transform:translate(-4%,5%) scale(.92); }
+  }
+  body[data-stage="cd"] .blob-field{ filter:blur(56px) brightness(1.15); }
+  body[data-stage="cd"] .blob{ animation-duration:9s; opacity:.55; }
+  body[data-stage="2"] .blob-field, body[data-stage="3"] .blob-field{ filter:blur(78px) brightness(1.1); }
+  body[data-stage="2"] .blob, body[data-stage="3"] .blob{ opacity:.5; }
+
+  /* ---------- grain (kept faint, adds texture not mood) ---------- */
+  .grain{
+    position:fixed; inset:0; z-index:50; pointer-events:none; opacity:.035; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size:140px 140px;
+  }
+
+  /* ---------- kanji watermark (Japanese touch) ---------- */
+  .kanji-watermark{
+    position:fixed; z-index:2; pointer-events:none;
+    top:-6vw; left:-5vw;
+    font-family:var(--font-jp);
+    font-weight:800;
+    font-size:32vw;
+    line-height:1;
+    color:var(--cream);
+    opacity:.045;
+    transform:rotate(-6deg);
+    user-select:none;
+  }
+  @media (max-width:560px){ .kanji-watermark{ font-size:50vw; top:-10vw; } }
+
+  /* ---------- confetti (falling, mixed with sakura petals) ---------- */
+  .confetti-layer, .spark-layer{ position:fixed; inset:-3%; z-index:5; overflow:hidden; pointer-events:none; }
+  .confetti{
+    position:absolute; top:-8%;
+    animation-name:confetti-fall;
+    animation-timing-function:cubic-bezier(.45,0,.55,1);
+    animation-iteration-count:infinite;
+  }
+  @keyframes confetti-fall{
+    0%   { transform:translate(0,-10vh) rotate(0deg);   opacity:0; }
+    8%   { opacity:.85; }
+    50%  { transform:translate(var(--drift),52vh) rotate(var(--spin)); }
+    92%  { opacity:.6; }
+    100% { transform:translate(calc(var(--drift) * -1),112vh) rotate(calc(var(--spin) * 2)); opacity:0; }
+  }
+  .spark{
+    position:absolute; bottom:-4%;
+    width:4px; height:4px; border-radius:50%;
+    background:var(--zest);
+    box-shadow:0 0 8px 2px rgba(255,182,39,.55);
+    animation-name:spark-float;
+    animation-timing-function:ease-in-out;
+    animation-iteration-count:infinite;
+  }
+  @keyframes spark-float{
+    0%   { transform:translateY(0) translateX(0); opacity:0; }
+    15%  { opacity:.7; }
+    50%  { transform:translateY(-48vh) translateX(var(--drift)); opacity:.4; }
+    85%  { opacity:.6; }
+    100% { transform:translateY(-100vh) translateX(calc(var(--drift) * -1)); opacity:0; }
+  }
+
+  /* burst confetti released at each screen transition */
+  .burst-confetti{
+    position:fixed; z-index:42; pointer-events:none; border-radius:2px;
+    animation:burst-out .95s var(--bounce) forwards;
+  }
+  @keyframes burst-out{
+    0%   { transform:translate(0,0) scale(.5) rotate(0deg); opacity:1; }
+    100% { transform:translate(var(--bx),var(--by)) scale(1) rotate(var(--br)); opacity:0; }
+  }
+
+  /* ---------- badge (party sticker) ---------- */
+  .badge{
+    position:fixed; z-index:41;
+    right:clamp(16px,4vw,36px); bottom:clamp(16px,4vw,36px);
+    width:clamp(42px,7vw,58px); height:clamp(42px,7vw,58px);
+    border-radius:50%;
+    background:var(--grad-warm);
+    border:3px solid var(--cream);
+    box-shadow:3px 3px 0 rgba(0,0,0,.22);
+    display:flex; align-items:center; justify-content:center;
+    font-size:clamp(18px,2.8vw,26px);
+    opacity:.55;
+    transform:rotate(-6deg);
+    transition:opacity .8s var(--ease);
+    pointer-events:none;
+    animation:badge-idle 5.5s ease-in-out infinite;
+  }
+  @keyframes badge-idle{
+    0%,100%{ transform:rotate(-6deg) scale(1); }
+    50%{ transform:rotate(3deg) scale(1.05); }
+  }
+  body[data-stage="cd"] .badge{ opacity:.75; }
+  body[data-stage="2"] .badge{ opacity:.9; }
+  body[data-stage="3"] .badge{ opacity:1; }
+  .badge.stamp{ animation:badge-idle 5.5s ease-in-out infinite, stamp-pop .7s var(--bounce); }
+  @keyframes stamp-pop{
+    0%   { transform:rotate(-6deg) scale(1); }
+    40%  { transform:rotate(-6deg) scale(1.5); }
+    70%  { transform:rotate(-6deg) scale(.85); }
+    100% { transform:rotate(-6deg) scale(1); }
+  }
+
+  /* ================= PRELOADER ================= */
+  .preloader{
+    position:fixed; inset:0; z-index:100;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:22px;
+    background:var(--ink-deep);
+    transition:opacity .8s var(--ease), filter .8s var(--ease);
+  }
+  .preloader.hide{ opacity:0; pointer-events:none; filter:blur(6px); }
+
+  .loader-mark{
+    display:flex; gap:clamp(6px,1.4vw,12px);
+    font-family:var(--font-display);
+    font-size:clamp(2rem,5.4vw,3rem);
+    font-weight:700;
+  }
+  .loader-mark span{
+    opacity:0;
+    display:inline-block;
+    background:var(--grad-full);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    animation:letter-in .8s var(--bounce) forwards;
+  }
+  .loader-mark span:nth-child(1){ animation-delay:.1s; }
+  .loader-mark span:nth-child(2){ animation-delay:.22s; }
+  .loader-mark span:nth-child(3){ animation-delay:.34s; }
+  .loader-mark span:nth-child(4){ animation-delay:.46s; }
+  @keyframes letter-in{
+    0%  { opacity:0; transform:translateY(26px) scale(.5) rotate(-6deg); }
+    100%{ opacity:1; transform:translateY(0) scale(1) rotate(0deg); }
+  }
+
+  .loader-bar{
+    width:clamp(130px,20vw,210px); height:6px;
+    background:rgba(255,247,236,0.14);
+    border-radius:999px;
+    position:relative; overflow:hidden;
+  }
+  .loader-bar::after{
+    content:"";
+    position:absolute; inset:0 100% 0 0;
+    background:var(--grad-full);
+    border-radius:999px;
+    animation:bar-fill 2.1s var(--ease) .5s forwards;
+  }
+  @keyframes bar-fill{ to{ right:0; } }
+
+  .loader-caption{
+    font-weight:400;
+    font-size:clamp(11px,1.2vw,12px);
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--cream-faint);
+    opacity:0;
+    animation:fade-up .8s var(--ease) 1.1s forwards;
+  }
+
+  /* ---------- stage / screens ---------- */
+  .stage{ position:relative; width:100%; height:100%; z-index:10; }
+
+  .screen{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    padding:clamp(24px,6vw,48px);
+    opacity:0;
+    transform:translateY(14px) scale(1.02);
+    pointer-events:none;
+    transition:opacity .7s var(--ease), transform .8s var(--bounce);
+  }
+  .screen.active{ opacity:1; transform:translateY(0) scale(1); pointer-events:auto; z-index:2; }
+  .screen.leaving{ opacity:0; transform:translateY(-14px) scale(.98); transition:opacity .5s var(--ease), transform .55s var(--ease); }
+
+  .content{
+    max-width:620px;
+    width:100%;
+    text-align:center;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:clamp(14px,2.6vh,22px);
+  }
+
+  .reveal{
+    opacity:0;
+    transform:translateY(16px);
+    animation:fade-up .8s var(--bounce) forwards;
+    animation-delay:var(--d, 0s);
+  }
+  @keyframes fade-up{ to{ opacity:1; transform:translateY(0); } }
+
+  .eyebrow{
+    font-family:var(--font-mono);
+    font-weight:700;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    font-size:clamp(11px,1.3vw,13px);
+    color:var(--zest);
+  }
+
+  .headline{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:clamp(1.6rem,4.8vw,2.7rem);
+    line-height:1.3;
+    color:var(--cream);
+  }
+  .headline.grad{
+    background:var(--grad-full);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .headline-jp{ font-family:var(--font-jp); font-weight:600; line-height:1.5; }
+
+  .subtext{
+    font-weight:400;
+    font-size:clamp(13px,1.6vw,15px);
+    color:var(--cream-dim);
+  }
+
+  .paragraph{
+    font-weight:300;
+    font-size:clamp(14px,1.9vw,17px);
+    line-height:1.85;
+    color:var(--cream-dim);
+    max-width:520px;
+  }
+
+  /* dot divider replaces the old hairline: confetti-dot punctuation */
+  .dot-divider{
+    display:flex; gap:9px; align-items:center; justify-content:center;
+    animation:fade-up .8s var(--bounce) forwards;
+    animation-delay:var(--d, 0s);
+    opacity:0;
+  }
+  .dot-divider span{ width:7px; height:7px; border-radius:50%; }
+  .dot-divider span:nth-child(1){ background:var(--punch); }
+  .dot-divider span:nth-child(2){ background:var(--zest); }
+  .dot-divider span:nth-child(3){ background:var(--electric); }
+
+  .wish-lines{
+    font-weight:400;
+    font-size:clamp(15px,2.1vw,19px);
+    line-height:2;
+    color:var(--cream);
+  }
+  .wish-lines em{ font-style:normal; color:var(--zest); font-weight:600; }
+
+  .jp-line{
+    font-family:var(--font-jp);
+    font-weight:600;
+    font-size:clamp(1.15rem,2.7vw,1.55rem);
+    color:var(--punch);
+    letter-spacing:.03em;
+  }
+
+  .translation{
+    font-weight:300;
+    font-size:clamp(12px,1.4vw,14px);
+    color:var(--cream-faint);
+    font-style:italic;
+  }
+
+  /* final line: sticker words — the one place we spend the boldness */
+  .final-line{
+    display:flex; flex-wrap:wrap; justify-content:center; gap:9px 11px;
+  }
+  .final-line .word{
+    display:inline-block;
+    padding:7px 15px;
+    border-radius:12px;
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:clamp(1.25rem,3.8vw,2rem);
+    color:var(--ink-deep);
+    box-shadow:4px 4px 0 rgba(0,0,0,.22);
+  }
+
+  /* ---------- buttons ---------- */
+  .cta{
+    margin-top:clamp(6px,1.6vh,14px);
+    position:relative;
+    background:var(--grad-warm);
+    border:none;
+    color:var(--ink-deep);
+    font-family:var(--font-display);
+    font-weight:600;
+    letter-spacing:.02em;
+    font-size:clamp(13px,1.6vw,15px);
+    padding:clamp(13px,1.9vh,17px) clamp(28px,4.4vw,40px);
+    border-radius:999px;
+    cursor:pointer;
+    box-shadow:4px 4px 0 rgba(0,0,0,.22);
+    transition:transform .25s var(--bounce), box-shadow .25s var(--ease);
+  }
+  .cta:hover{ transform:translateY(-3px) scale(1.02); box-shadow:6px 7px 0 rgba(0,0,0,.24); }
+  .cta:active{ transform:translateY(0) scale(.97); box-shadow:2px 2px 0 rgba(0,0,0,.22); }
+  .cta:focus-visible{ outline:2px solid var(--cream); outline-offset:4px; }
+
+  /* ================= COUNTDOWN SCREEN ================= */
+  .countdown-wrap{
+    position:relative;
+    width:clamp(180px,34vw,260px);
+    height:clamp(180px,34vw,260px);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .countdown-wrap::before{
+    content:"";
+    position:absolute; inset:12%;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(255,182,39,0.22), transparent 70%);
+    filter:blur(8px);
+    animation:ring-pulse 1s ease-in-out infinite;
+  }
+  @keyframes ring-pulse{ 0%,100%{ opacity:.5; transform:scale(1); } 50%{ opacity:1; transform:scale(1.08); } }
+
+  .countdown-wrap svg{ position:absolute; inset:0; width:100%; height:100%; transform:rotate(-90deg); }
+  .ring-track{ fill:none; stroke:rgba(255,247,236,0.14); stroke-width:6; }
+  .ring-progress{
+    fill:none; stroke:url(#ringGrad); stroke-width:6; stroke-linecap:round;
+    transition:stroke-dashoffset 1s linear;
+  }
+
+  .countdown-number{
+    font-family:var(--font-mono);
+    font-weight:700;
+    font-size:clamp(3.6rem,11vw,5.6rem);
+    line-height:1;
+    background:var(--grad-full);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .countdown-number.pop{ animation:number-pop .6s var(--bounce); }
+  @keyframes number-pop{
+    0%{ opacity:0; transform:scale(.7) translateY(8px); }
+    60%{ opacity:1; transform:scale(1.12); }
+    100%{ opacity:1; transform:scale(1); }
+  }
+
+  .countdown-caption{
+    font-weight:400;
+    font-size:clamp(12px,1.5vw,14px);
+    letter-spacing:.05em;
+    color:var(--cream-faint);
+  }
+
+  /* ---------- reduced motion ---------- */
+  @media (prefers-reduced-motion: reduce){
+    .confetti, .spark, .blob, .badge, .countdown-wrap::before{ animation:none !important; }
+    .confetti, .spark{ display:none; }
+    .screen, .reveal, .dot-divider, .badge, .preloader, .loader-mark span, .loader-bar::after, .loader-caption{
+      transition:opacity .35s linear !important; animation-duration:.01s !important;
+    }
+  }
+
+  /* ---------- short viewport safety ---------- */
+  @media (max-height: 620px){
+    .content{ gap:clamp(8px,1.6vh,14px); }
+    .paragraph{ line-height:1.6; }
+    .wish-lines{ line-height:1.6; }
+    .countdown-wrap{ width:clamp(150px,30vw,200px); height:clamp(150px,30vw,200px); }
+    .countdown-number{ font-size:clamp(2.8rem,10vw,4rem); }
+  }
+
+  @media (max-width: 420px){
+    .headline{ font-size:clamp(1.4rem,6.4vw,2rem); }
+  }
+</style>
+</head>
+<body data-stage="pre">
+
+  <div class="blob-field">
+    <div class="blob blob-a"></div>
+    <div class="blob blob-b"></div>
+    <div class="blob blob-c"></div>
+  </div>
+
+  <div class="grain"></div>
+  <div class="kanji-watermark" aria-hidden="true">祝</div>
+
+  <div class="confetti-layer" id="confettiLayer"></div>
+  <div class="spark-layer" id="sparkLayer"></div>
+
+  <div class="badge" id="badge">🎉</div>
+
+  <!-- ================= PRELOADER ================= -->
+  <div class="preloader" id="preloader">
+    <div class="loader-mark" aria-hidden="true">
+      <span>L</span><span>I</span><span>L</span><span>Y</span>
+    </div>
+    <div class="loader-bar"></div>
+    <p class="loader-caption">wrapping up your surprise 🎉</p>
+  </div>
+
+  <div class="stage">
+
+    <!-- SCREEN 1 — Opening -->
+    <section class="screen" id="screen-1">
+      <div class="content">
+        <p class="eyebrow reveal" style="--d:.1s">Hey Lily…</p>
+        <h1 class="headline reveal" style="--d:.3s">I made a little something<br>for you.</h1>
+        <p class="subtext reveal" style="--d:.5s">Don't expect anything too serious though :)</p>
+        <div class="dot-divider reveal" style="--d:.65s"><span></span><span></span><span></span></div>
+        <button class="cta reveal" style="--d:.8s" data-next="screen-countdown" data-stage="cd">Open your surprise →</button>
+      </div>
+    </section>
+
+    <!-- SCREEN CD — Countdown -->
+    <section class="screen" id="screen-countdown">
+      <div class="content">
+        <p class="eyebrow reveal" style="--d:.1s">Just a little longer…</p>
+        <div class="countdown-wrap reveal" style="--d:.25s">
+          <svg viewBox="0 0 100 100">
+            <defs>
+              <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FF3E68"/>
+                <stop offset="50%" stop-color="#FFB627"/>
+                <stop offset="100%" stop-color="#8C54FF"/>
+              </linearGradient>
+            </defs>
+            <circle class="ring-track" cx="50" cy="50" r="42"></circle>
+            <circle class="ring-progress" id="ringProgress" cx="50" cy="50" r="42"></circle>
+          </svg>
+          <span class="countdown-number" id="countdownNumber">10</span>
+        </div>
+        <p class="countdown-caption reveal" style="--d:.45s">your surprise is almost ready</p>
+      </div>
+    </section>
+
+    <!-- SCREEN 2 — Birthday message -->
+    <section class="screen" id="screen-2">
+      <div class="content">
+        <h1 class="headline grad headline-jp reveal" style="--d:.1s">お誕生日おめでとう、Lily 🎂</h1>
+        <div class="dot-divider reveal" style="--d:.28s"><span></span><span></span><span></span></div>
+        <p class="paragraph reveal" style="--d:.42s">
+          I know we haven't known each other for that long,<br>
+          but somehow you already became someone<br>
+          I really enjoy talking to.
+        </p>
+        <p class="paragraph reveal" style="--d:.62s">
+          So… I couldn't just let your birthday pass<br>
+          without making you a little surprise.
+        </p>
+        <button class="cta reveal" style="--d:.85s" data-next="screen-3" data-stage="3">There's something else… →</button>
+      </div>
+    </section>
+
+    <!-- SCREEN 3 — Final wish -->
+    <section class="screen" id="screen-3">
+      <div class="content">
+        <p class="eyebrow reveal" style="--d:.1s">One little wish for you this year…</p>
+        <p class="wish-lines reveal" style="--d:.3s">
+          More reasons to smile.<br>
+          More fun days.<br>
+          And maybe…<br>
+          <em>a few more conversations with me. ☺️</em>
+        </p>
+        <div class="dot-divider reveal" style="--d:.55s"><span></span><span></span><span></span></div>
+        <p class="jp-line reveal" style="--d:.7s">素敵な一年になりますように。</p>
+        <p class="translation reveal" style="--d:.85s">Wishing you a beautiful year ahead.</p>
+        <p class="final-line reveal" style="--d:1.05s">
+          <span class="word" style="background:var(--punch); transform:rotate(-4deg);">Happy</span><span class="word" style="background:var(--zest); transform:rotate(3deg);">Birthday,</span><span class="word" style="background:var(--electric); color:var(--cream); transform:rotate(-2deg);">Lily</span><span class="word" style="background:var(--mint); transform:rotate(5deg);">🤍</span>
+        </p>
+      </div>
+    </section>
+
+  </div>
+
+<script>
+(function(){
+  "use strict";
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const body = document.body;
+  const badge = document.getElementById('badge');
+  const PALETTE = ['#FF3E68','#FFB627','#8C54FF','#2EE6A6'];
+
+  /* ---------------- transition engine ---------------- */
+  function releaseBurst(originEl){
+    if(reduceMotion) return;
+    const rect = originEl.getBoundingClientRect();
+    const cx = rect.left + rect.width/2;
+    const cy = rect.top + rect.height/2;
+    const count = 14;
+    for(let i=0;i<count;i++){
+      const p = document.createElement('div');
+      p.className = 'burst-confetti';
+      const w = 5 + Math.random()*6;
+      const h = 5 + Math.random()*9;
+      const angle = (Math.PI*2/count)*i + Math.random()*0.6;
+      const dist = 60 + Math.random()*90;
+      p.style.width = w+'px';
+      p.style.height = h+'px';
+      p.style.left = cx+'px';
+      p.style.top = cy+'px';
+      p.style.background = PALETTE[i % PALETTE.length];
+      p.style.setProperty('--bx', Math.cos(angle)*dist+'px');
+      p.style.setProperty('--by', Math.sin(angle)*dist+'px');
+      p.style.setProperty('--br', (Math.random()*360-180)+'deg');
+      document.body.appendChild(p);
+      setTimeout(()=> p.remove(), 1100);
+    }
+  }
+
+  function goTo(current, next, stageValue){
+    if(!next || next === current) return;
+
+    current.classList.add('leaving');
+    badge.classList.remove('stamp');
+    void badge.offsetWidth;
+    badge.classList.add('stamp');
+    releaseBurst(badge);
+
+    setTimeout(()=>{
+      current.classList.remove('active','leaving');
+      next.classList.add('active');
+      if(stageValue) body.setAttribute('data-stage', stageValue);
+    }, reduceMotion ? 50 : 600);
+  }
+
+  document.querySelectorAll('[data-next]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const current = btn.closest('.screen');
+      const next = document.getElementById(btn.dataset.next);
+      goTo(current, next, btn.dataset.stage);
+    });
+  });
+
+  /* ---------------- countdown ---------------- */
+  const countdownScreen = document.getElementById('screen-countdown');
+  const numberEl = document.getElementById('countdownNumber');
+  const ringEl = document.getElementById('ringProgress');
+  const R = 42;
+  const CIRC = 2 * Math.PI * R;
+  ringEl.style.strokeDasharray = CIRC.toFixed(2);
+  ringEl.style.strokeDashoffset = '0';
+
+  let countdownStarted = false;
+  function runCountdown(){
+    if(countdownStarted) return;
+    countdownStarted = true;
+
+    let n = 10;
+    numberEl.textContent = n;
+    ringEl.style.strokeDashoffset = '0';
+
+    const tick = ()=>{
+      n -= 1;
+      ringEl.style.strokeDashoffset = (CIRC * ((10-n)/10)).toFixed(2);
+
+      if(n >= 0){
+        numberEl.textContent = n;
+        numberEl.classList.remove('pop');
+        void numberEl.offsetWidth;
+        numberEl.classList.add('pop');
+      }
+
+      if(n > 0){
+        setTimeout(tick, 1000);
+      } else {
+        setTimeout(()=>{
+          const target = document.getElementById('screen-2');
+          goTo(countdownScreen, target, '2');
+        }, 500);
+      }
+    };
+
+    setTimeout(tick, 1000);
+  }
+
+  const cdObserver = new MutationObserver(()=>{
+    if(countdownScreen.classList.contains('active')) runCountdown();
+  });
+  cdObserver.observe(countdownScreen, { attributes:true, attributeFilter:['class'] });
+
+  /* ---------------- preloader ---------------- */
+  const preloader = document.getElementById('preloader');
+  const screen1 = document.getElementById('screen-1');
+
+  setTimeout(()=>{
+    preloader.classList.add('hide');
+    setTimeout(()=>{
+      preloader.style.display = 'none';
+      screen1.classList.add('active');
+      body.setAttribute('data-stage','1');
+      body.classList.add('ready');
+      attemptAutoplay();
+    }, reduceMotion ? 50 : 900);
+  }, reduceMotion ? 200 : 2500);
+
+  /* ---------------- confetti (mixed with a few sakura petals — Japanese touch) ---------------- */
+  const confettiLayer = document.getElementById('confettiLayer');
+  const CONFETTI_COUNT = reduceMotion ? 0 : (window.innerWidth < 560 ? 16 : 26);
+
+  for(let i=0;i<CONFETTI_COUNT;i++){
+    const p = document.createElement('div');
+    p.className = 'confetti';
+    const isPetal = Math.random() < 0.28;
+    const duration = 9 + Math.random()*9;
+    const delay = Math.random()*-duration;
+    const drift = 40 + Math.random()*80;
+    const spin = 180 + Math.random()*360;
+    const left = Math.random()*100;
+
+    if(isPetal){
+      const size = 10 + Math.random()*8;
+      p.style.width = size+'px';
+      p.style.height = (size*0.72)+'px';
+      p.style.background = 'linear-gradient(135deg, var(--sakura), var(--punch))';
+      p.style.borderRadius = '70% 0 70% 0';
+      p.style.opacity = (0.4 + Math.random()*0.3).toFixed(2);
+    } else {
+      const w = 6 + Math.random()*7;
+      const h = 6 + Math.random()*10;
+      p.style.width = w+'px';
+      p.style.height = h+'px';
+      p.style.background = PALETTE[i % PALETTE.length];
+      p.style.borderRadius = (Math.random() > .5 ? '2px' : '50%');
+      p.style.opacity = (0.5 + Math.random()*0.35).toFixed(2);
+    }
+
+    p.style.left = left+'vw';
+    p.style.setProperty('--drift', drift+'px');
+    p.style.setProperty('--spin', spin+'deg');
+    p.style.animationDuration = duration+'s';
+    p.style.animationDelay = delay+'s';
+
+    confettiLayer.appendChild(p);
+  }
+
+  /* ---------------- floating sparks ---------------- */
+  const sparkLayer = document.getElementById('sparkLayer');
+  const SPARK_COUNT = reduceMotion ? 0 : (window.innerWidth < 560 ? 10 : 16);
+
+  for(let i=0;i<SPARK_COUNT;i++){
+    const d = document.createElement('div');
+    d.className = 'spark';
+    const duration = 9 + Math.random()*9;
+    const delay = Math.random()*-duration;
+    const drift = 12 + Math.random()*30;
+    const left = Math.random()*100;
+
+    d.style.left = left+'vw';
+    d.style.setProperty('--drift', drift+'px');
+    d.style.animationDuration = duration+'s';
+    d.style.animationDelay = delay+'s';
+
+    sparkLayer.appendChild(d);
+  }
+
+  /* ---------------- subtle cursor parallax (fine pointers only) ---------------- */
+  if(!reduceMotion && window.matchMedia('(pointer:fine)').matches){
+    let tx = 0, ty = 0, cx = 0, cy = 0;
+    const blobField = document.querySelector('.blob-field');
+    window.addEventListener('mousemove', (e)=>{
+      tx = (e.clientX / window.innerWidth - 0.5) * 2;
+      ty = (e.clientY / window.innerHeight - 0.5) * 2;
+    });
+    function raf(){
+      cx += (tx - cx) * 0.04;
+      cy += (ty - cy) * 0.04;
+      blobField.style.transform = `translate(${cx*10}px, ${cy*10}px)`;
+      requestAnimationFrame(raf);
+    }
+    requestAnimationFrame(raf);
+  }
+
+  /* ---------------- funny looping music — starts on its own, no button ---------------- */
+  let audioCtx, masterGain, musicStarted = false;
+
+  function startFunnyMusic(){
+    if(musicStarted) return;
+    musicStarted = true;
+
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    masterGain = audioCtx.createGain();
+    masterGain.gain.value = 0;
+    masterGain.connect(audioCtx.destination);
+    masterGain.gain.linearRampToValueAtTime(0.32, audioCtx.currentTime + 1.6);
+
+    // a bouncy, slightly goofy little melody loop
+    const melody = [659.25,783.99,987.77,1046.50,987.77,783.99,659.25,523.25,
+                     587.33,659.25,783.99,659.25,523.25,0,493.88,523.25];
+    const noteDur = 0.22;
+
+    function playNote(freq, time){
+      if(freq === 0) return;
+      const osc = audioCtx.createOscillator();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(freq, time);
+      osc.frequency.linearRampToValueAtTime(freq*1.03, time+noteDur*0.5);
+      osc.frequency.linearRampToValueAtTime(freq, time+noteDur*0.9);
+
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 2600;
+
+      const g = audioCtx.createGain();
+      g.gain.setValueAtTime(0.0001, time);
+      g.gain.linearRampToValueAtTime(0.5, time+0.015);
+      g.gain.exponentialRampToValueAtTime(0.001, time+noteDur*0.9);
+
+      osc.connect(filter); filter.connect(g); g.connect(masterGain);
+      osc.start(time); osc.stop(time+noteDur);
+    }
+
+    function boing(time){
+      const osc = audioCtx.createOscillator();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(110, time);
+      osc.frequency.exponentialRampToValueAtTime(220, time+0.12);
+      osc.frequency.exponentialRampToValueAtTime(80, time+0.3);
+      const g = audioCtx.createGain();
+      g.gain.setValueAtTime(0.0001, time);
+      g.gain.linearRampToValueAtTime(0.2, time+0.02);
+      g.gain.exponentialRampToValueAtTime(0.001, time+0.35);
+      osc.connect(g); g.connect(masterGain);
+      osc.start(time); osc.stop(time+0.4);
+    }
+
+    function scheduleLoop(){
+      const now = audioCtx.currentTime + 0.05;
+      melody.forEach((f,i)=> playNote(f, now + i*noteDur));
+      boing(now);
+      setTimeout(scheduleLoop, melody.length*noteDur*1000);
+    }
+    scheduleLoop();
+  }
+
+  function attemptAutoplay(){
+    try{
+      startFunnyMusic();
+    }catch(e){ /* browser blocked it — fallback listeners below will catch the first tap */ }
+  }
+
+  ['pointerdown','touchstart','keydown'].forEach(evt=>{
+    document.addEventListener(evt, ()=>{
+      if(!musicStarted){ startFunnyMusic(); }
+      else if(audioCtx && audioCtx.state === 'suspended'){ audioCtx.resume(); }
+    }, { once:true, passive:true });
+  });
+
+})();
+</script>
+
+</body>
+</html>
