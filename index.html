@@ -734,6 +734,7 @@
       screen1.classList.add('active');
       body.setAttribute('data-stage','1');
       body.classList.add('ready');
+      attemptAutoplay();
     }, reduceMotion ? 50 : 700);
   }, reduceMotion ? 150 : 2000);
 
@@ -926,15 +927,14 @@
     loopTimer = setTimeout(scheduleLoop, LOOP_MS);
   }
 
-  function playMusic(){
-    ensureAudioGraph();
-    if(audioCtx.state === 'suspended') audioCtx.resume();
+  function beginPlayback(){
     isPlaying = true;
     const t = audioCtx.currentTime;
     masterGain.gain.cancelScheduledValues(t);
     masterGain.gain.setValueAtTime(masterGain.gain.value, t);
     masterGain.gain.linearRampToValueAtTime(0.34, t+0.8);
     scheduleLoop();
+    updateMusicUI();
   }
 
   function pauseMusic(){
@@ -947,27 +947,70 @@
       masterGain.gain.linearRampToValueAtTime(0.0001, t+0.45);
       setTimeout(()=>{ if(!isPlaying && audioCtx && audioCtx.state === 'running') audioCtx.suspend(); }, 550);
     }
+    updateMusicUI();
   }
 
   function updateMusicUI(){
+    const hideHint = isPlaying || !wantsMusic;
     musicToggle.classList.toggle('is-playing', isPlaying);
-    musicToggle.classList.add('ever-played');
+    musicToggle.classList.toggle('ever-played', hideHint);
     musicToggle.setAttribute('aria-pressed', isPlaying ? 'true' : 'false');
     musicToggle.setAttribute('aria-label', isPlaying ? 'Pause birthday music' : 'Play birthday music');
     musicLabel.textContent = isPlaying ? 'Pause music' : 'Play music';
   }
 
+  /* ---- default behaviour: music wants to play on its own ----
+     Mobile browsers only allow audio to actually start once there has
+     been a user gesture on the page, so this tries immediately, and —
+     if that's blocked — quietly picks up the very first tap/scroll the
+     person makes anywhere on the page (e.g. tapping "Open your
+     surprise"). No dialog, no extra step for them to take. Once they
+     use the button themselves, their choice wins from then on. */
+  let wantsMusic = true;
+  let unlockAttached = false;
+
+  function attemptAutoplay(){
+    if(!wantsMusic || isPlaying) return;
+    ensureAudioGraph();
+    if(audioCtx.state === 'running'){
+      beginPlayback();
+      return;
+    }
+    audioCtx.resume().then(()=>{
+      if(wantsMusic && !isPlaying && audioCtx.state === 'running') beginPlayback();
+    }).catch(()=>{ /* blocked until a gesture — fallback below handles it */ });
+    attachGestureFallback();
+  }
+
+  function attachGestureFallback(){
+    if(unlockAttached) return;
+    unlockAttached = true;
+    const events = ['pointerdown','touchstart','keydown'];
+    const unlock = ()=>{
+      events.forEach(evt=> document.removeEventListener(evt, unlock));
+      unlockAttached = false;
+      if(wantsMusic && !isPlaying) attemptAutoplay();
+    };
+    events.forEach(evt=> document.addEventListener(evt, unlock, { passive:true }));
+  }
+
   musicToggle.addEventListener('click', ()=>{
-    if(isPlaying){ pauseMusic(); } else { playMusic(); }
-    updateMusicUI();
+    if(isPlaying){
+      wantsMusic = false;
+      pauseMusic();
+    } else {
+      wantsMusic = true;
+      attemptAutoplay();
+      updateMusicUI();
+    }
   });
 
   document.addEventListener('visibilitychange', ()=>{
     if(!audioCtx) return;
     if(document.hidden && isPlaying && audioCtx.state === 'running'){
       audioCtx.suspend();
-    } else if(!document.hidden && isPlaying && audioCtx.state === 'suspended'){
-      audioCtx.resume();
+    } else if(!document.hidden && wantsMusic && audioCtx.state === 'suspended'){
+      audioCtx.resume().then(()=>{ if(wantsMusic && !isPlaying && audioCtx.state === 'running') beginPlayback(); });
     }
   });
 
